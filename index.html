@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,6 @@
         body {
             margin: 0;
             height: 100vh;
-            background-image: url(https://bing.biturl.top/?resolution=3840&format=image&index=0&mkt=zh-CN);
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -21,6 +20,7 @@
             justify-content: center;
             color: white;
             font-family: 'Open Sans', sans-serif;
+            transition: background-image 0.5s ease-in-out;
         }
         .title {
             position: absolute;
@@ -47,23 +47,34 @@
             margin-bottom: 10px;
         }
         .search-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 20px 0;
+            width: 100%;
+            max-width: 600px;
         }
         .search-bar input[type="text"] {
-            width: 280px;
+            flex: 1;
             padding: 10px;
             font-size: 1em;
-            border-radius: 5px;
-            border: none;
+            border-radius: 25px;
+            border: 1px solid #dfe1e5;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+            outline: none;
+            transition: width 0.4s ease-in-out;
+            min-width: 0;  /* 允許收縮到最小 */
         }
-        .search-bar input[type="submit"] {
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
+        .search-bar button {
+            background: none;
             border: none;
-            background-color: #4285F4;
-            color: white;
             cursor: pointer;
+            padding: 10px;
+            margin-left: -50px;
+        }
+        .search-bar button img {
+            width: 24px;
+            height: 24px;
         }
         .link-container {
             display: flex;
@@ -122,9 +133,11 @@
         <div class="time" id="time"></div>
     </div>
     <div class="search-bar">
-        <form action="https://www.google.com/search" method="get" target="_blank">
-            <input type="text" name="q" placeholder="Search Google">
-            <input type="submit" value="Search">
+        <form action="https://www.google.com/search" method="get" target="_blank" style="display: flex; align-items: center; width: 100%;">
+            <input type="text" name="q" placeholder="搜尋 Google">
+            <button type="submit">
+                <img src="https://img.icons8.com/ios-filled/50/000000/search--v1.png" alt="搜索">
+            </button>
         </form>
     </div>
     <div class="link-container">
@@ -159,11 +172,49 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        function changeBackground() {
+        function getBackgroundUrl() {
+            const width = window.screen.width;
+            const height = window.screen.height;
+
+            let resolution = '1920';
+            if (width >= 3840 && height >= 2160) {
+                resolution = '3840';
+            } else if (width >= 2880 && height >= 1800) {
+                resolution = '2880';
+            } else if (width >= 2560 && height >= 1440) {
+                resolution = '2560';
+            } else if (width >= 1920 && height >= 1080) {
+                resolution = '1920';
+            } else {
+                resolution = '1366'; // 預設解析度
+            }
+
+            // 檢測設備是否是手機，並選擇直幅壁紙
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                resolution += '&format=vertical';
+            }
+
             const index = Math.floor(Math.random() * 8); // 0 到 7 的隨機數
-            const url = `https://bing.biturl.top/?resolution=3840&format=image&index=${index}&mkt=zh-CN`;
-            document.body.style.backgroundImage = `url(${url})`;
+            return `https://bing.biturl.top/?resolution=${resolution}&format=image&index=${index}&mkt=zh-CN`;
         }
+
+        function changeBackground() {
+            const url = getBackgroundUrl();
+            const img = new Image();
+            img.onload = function() {
+                document.body.style.backgroundImage = `url(${url})`;
+                console.log('Background image loaded:', url);
+            };
+            img.onerror = function() {
+                console.error('Failed to load background image:', url);
+                document.body.style.backgroundImage = 'url(https://example.com/default-background.jpg)';
+            };
+            img.src = url;
+        }
+
+        // 初始化背景
+        changeBackground();
     </script>
 </body>
 </html>
