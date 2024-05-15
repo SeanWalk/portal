@@ -189,11 +189,7 @@
                 resolution = '1366'; // 預設解析度
             }
 
-            // 檢測設備是否是手機，並選擇直幅壁紙
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                resolution += '&format=vertical';
-            }
+
 
             const index = Math.floor(Math.random() * 8); // 0 到 7 的隨機數
             return `https://bing.biturl.top/?resolution=${resolution}&format=image&index=${index}&mkt=zh-CN`;
