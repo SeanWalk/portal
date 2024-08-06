@@ -121,6 +121,37 @@
             cursor: pointer;
             font-family: 'Open Sans', sans-serif;
         }
+        .weather-info {
+            position: absolute;
+            bottom: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8em; /* 縮小字體 */
+            transition: all 0.3s ease-in-out;
+        }
+        .weather-info img {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        /* 在行動裝置上進行調整 */
+        @media (max-width: 768px) {
+            .weather-info {
+                bottom: 20px;
+                left: 20px;
+                right: auto;
+                font-size: 0.7em; /* 縮小字體 */
+                justify-content: center;
+            }
+            .weather-info .city-name {
+                display: none; /* 隱藏城市名稱 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -159,22 +190,48 @@
         </a>
     </div>
     <button class="change-background-btn" onclick="changeBackground()">更換桌布</button>
+    <div class="weather-info" id="weatherInfo">
+        <!-- 天氣信息將在此處更新 -->
+    </div>
     <script>
-        function updateClock() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
-            const date = `${year}-${month}-${day}`;
-            const time = `${hours}:${minutes}:${seconds}`;
-            document.getElementById('date').textContent = date;
-            document.getElementById('time').textContent = time;
+        let serverTime = null; // 伺服器時間
+        let localOffset = 0; // 本地時間偏移量
+
+        async function fetchServerTime() {
+            try {
+                const response = await fetch('http://worldtimeapi.org/api/ip');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch time');
+                }
+                const data = await response.json();
+                serverTime = new Date(data.datetime);
+                localOffset = Date.now() - serverTime.getTime();
+                updateClock();
+            } catch (error) {
+                console.error('Error fetching time:', error);
+            }
         }
+
+        function updateClock() {
+            if (serverTime) {
+                const now = new Date(Date.now() - localOffset); // 使用本地偏移量計算當前時間
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+
+                const date = `${year}-${month}-${day}`;
+                const time = `${hours}:${minutes}:${seconds}`;
+
+                document.getElementById('date').textContent = date;
+                document.getElementById('time').textContent = time;
+            }
+        }
+
         setInterval(updateClock, 1000);
-        updateClock();
+        fetchServerTime(); // 初始化時獲取伺服器時間
 
         function getBackgroundUrl() {
             const width = window.screen.width;
@@ -192,8 +249,6 @@
             } else {
                 resolution = '1366'; // 預設解析度
             }
-
-
 
             const index = Math.floor(Math.random() * 8); // 0 到 7 的隨機數
             return `https://bing.biturl.top/?resolution=${resolution}&format=image&index=${index}&mkt=zh-CN`;
@@ -215,6 +270,58 @@
 
         // 初始化背景
         changeBackground();
+
+        // 使用 OpenWeatherMap API 獲取天氣數據
+        async function fetchWeather(lat, lon) {
+            const apiKey = 'a89a273a7743e19cb84836cf9fddcb0e';
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=zh_tw`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch weather data');
+                }
+                const data = await response.json();
+                displayWeather(data);
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+            }
+        }
+
+        function displayWeather(data) {
+            const temperature = data.main.temp.toFixed(1); // 溫度
+            const description = data.weather[0].description; // 天氣描述
+            const iconCode = data.weather[0].icon; // 天氣圖標
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+            const city = data.name; // 城市名稱
+
+            const weatherInfo = document.getElementById('weatherInfo');
+            weatherInfo.innerHTML = `
+                <img src="${iconUrl}" alt="${description}">
+                <span class="city-name">${city}: </span><span>${temperature}°C, ${description}</span>
+            `;
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchWeather(lat, lon);
+                }, (error) => {
+                    console.error('Error getting location:', error);
+                    // 提供默認城市（如台北）的天氣
+                    fetchWeather(25.0330, 121.5654); // 台北的經緯度
+                });
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+                // 提供默認城市（如台北）的天氣
+                fetchWeather(25.0330, 121.5654); // 台北的經緯度
+            }
+        }
+
+        // 初始化時獲取用戶位置並獲取天氣信息
+        getLocation();
     </script>
 </body>
 </html>
