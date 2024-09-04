@@ -36,16 +36,6 @@
         .title .water {
             color: #33FFEC;
         }
-        .clock {
-            text-align: center;
-            font-size: calc(2em + 2vw);
-            margin-bottom: 20px;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .date {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
         .search-bar {
             display: flex;
             align-items: center;
@@ -159,10 +149,6 @@
         <span class="lemon">檸檬</span>
         <span class="water">水</span>
     </div>
-    <div class="clock" id="clock">
-        <div class="date" id="date"></div>
-        <div class="time" id="time"></div>
-    </div>
     <div class="search-bar">
         <form action="https://www.google.com/search" method="get" target="_blank" style="display: flex; align-items: center; width: 100%;">
             <input type="text" name="q" placeholder="搜尋 Google">
@@ -194,45 +180,6 @@
         <!-- 天氣信息將在此處更新 -->
     </div>
     <script>
-        let serverTime = null; // 伺服器時間
-        let localOffset = 0; // 本地時間偏移量
-
-        async function fetchServerTime() {
-            try {
-                const response = await fetch('http://worldtimeapi.org/api/ip');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch time');
-                }
-                const data = await response.json();
-                serverTime = new Date(data.datetime);
-                localOffset = Date.now() - serverTime.getTime();
-                updateClock();
-            } catch (error) {
-                console.error('Error fetching time:', error);
-            }
-        }
-
-        function updateClock() {
-            if (serverTime) {
-                const now = new Date(Date.now() - localOffset); // 使用本地偏移量計算當前時間
-                const year = now.getFullYear();
-                const month = (now.getMonth() + 1).toString().padStart(2, '0');
-                const day = now.getDate().toString().padStart(2, '0');
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-
-                const date = `${year}-${month}-${day}`;
-                const time = `${hours}:${minutes}:${seconds}`;
-
-                document.getElementById('date').textContent = date;
-                document.getElementById('time').textContent = time;
-            }
-        }
-
-        setInterval(updateClock, 1000);
-        fetchServerTime(); // 初始化時獲取伺服器時間
-
         function getBackgroundUrl() {
             const width = window.screen.width;
             const height = window.screen.height;
