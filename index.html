@@ -31,6 +31,23 @@
             transition: background-image 1s ease-in-out;
         }
 
+        #alert-bar {
+          background-color: #ffeb3b;
+          color: #000;
+          padding: 10px 20px;
+          text-align: center;
+          font-weight: bold;
+          font-family: 'Open Sans', sans-serif;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          position: fixed;
+          top: 0;
+          width: 100%;
+          z-index: 9999;
+        }
+        body {
+          padding-top: 50px; /* 避免 alert bar 蓋住上方內容 */
+        }
+
         .search-container {
             display: flex;
             flex-direction: column;
@@ -151,6 +168,9 @@
     </style>
 </head>
 <body>
+    <div id="alert-bar">
+      📢 伺服器 4/14–4/17 設備更新，服務間歇性中斷
+    </div>
     <div class="search-container">
         <form action="https://www.google.com/search" method="get" class="search-box" target="_blank">
             <input type="text" name="q" placeholder="搜尋網路">
