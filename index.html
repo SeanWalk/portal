@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>檸檬水入口網站</title>
+    <meta name="description" content="Waterlemon Portal site.">
+    <meta property="og:title" content="Waterlemon | Portal">
+    <meta property="og:description" content="Personal website of Waterlemon.">
+    <meta property="og:image" content="https://www.waterlemon.tw/lemon.jpg">
+    <meta property="og:url" content="https://www.waterlemon.tw">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Open+Sans:wght@300;400;600;700&family=Zen+Maru+Gothic:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -171,32 +177,6 @@
     </div>
 
     <script>
-        let serverTime = null;
-        let localOffset = 0;
-
-        async function fetchServerTime() {
-            try {
-                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Taipei');
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                serverTime = new Date(data.utc_datetime);
-                localOffset = Date.now() - serverTime.getTime();
-                updateClock();
-                setInterval(updateClock, 1000);
-            } catch (e) {
-                console.error('無法取得時間', e);
-                const now = new Date();
-                serverTime = now;
-                localOffset = 0;
-                updateClock();
-                setInterval(updateClock, 1000);
-            }
-        }
-
-        function updateClock() {
-            const now = new Date(Date.now() - localOffset);
-            console.log('目前時間：', now);
-        }
 
         function getBackgroundUrl() {
             const width = screen.width;
@@ -250,7 +230,6 @@
             }
         }
 
-        fetchServerTime();
         getLocation();
     </script>
 </body>
